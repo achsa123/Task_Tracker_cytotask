@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+  }
+
+  * {
+    @apply border-gray-700;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-gray-950 text-gray-100 antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-700 hover:bg-gray-600;
+  }
+}
+
+@layer components {
+  /* Reusable button base */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+           transition-all duration-150 focus:outline-none focus-visible:ring-2
+           focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-500 active:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply btn bg-surface-raised text-gray-200 hover:bg-surface-overlay;
+  }
+  .btn-ghost {
+    @apply btn text-gray-400 hover:bg-surface-raised hover:text-gray-100;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-500 active:bg-red-700;
+  }
+
+  /* Form input base */
+  .input {
+    @apply w-full rounded-lg border border-gray-700 bg-surface-raised px-3 py-2 text-sm
+           text-gray-100 placeholder-gray-500 outline-none
+           transition-colors duration-150
+           focus:border-brand-500 focus:ring-1 focus:ring-brand-500
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Card surface */
+  .card {
+    @apply rounded-xl border border-gray-800 bg-surface-raised p-4 shadow-lg;
+  }
+
+  /* Error message below inputs */
+  .field-error {
+    @apply mt-1 text-xs text-red-400;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.25s ease-out;
+  }
+}
