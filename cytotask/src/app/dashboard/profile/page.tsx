@@ -136,7 +136,7 @@ export default function ProfilePage() {
               
               <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
                 <span className="text-xs font-semibold text-white">
-                  {isUploading ? 'Uploading...' : 'Change'}
+                  {isUploading ? 'Uploading...' : profile?.avatar_url ? 'Change' : 'Upload'}
                 </span>
                 <input
                   type="file"
