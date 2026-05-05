@@ -50,10 +50,15 @@ export function useRegister() {
   const supabase = createClient();
 
   return useMutation({
-    mutationFn: async (credentials: Pick<RegisterInput, 'email' | 'password'>) => {
+    mutationFn: async (credentials: RegisterInput) => {
       const { data, error } = await supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
+        options: {
+          data: {
+            full_name: credentials.full_name,
+          },
+        },
       });
       if (error) {
         if (error.message.includes('User already registered')) {

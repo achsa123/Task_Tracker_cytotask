@@ -163,11 +163,15 @@ export function TaskCard({ task, isAdminView = false }: TaskCardProps) {
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-800 text-xs font-medium text-gray-300">
-                  {task.assigned_to ? task.assigned_to.charAt(0).toUpperCase() : '?'}
+                <div className="flex h-6 w-6 overflow-hidden items-center justify-center rounded-full bg-gray-800 text-[10px] font-bold text-gray-300 border border-gray-700">
+                  {currentAssignee?.avatar_url ? (
+                    <img src={currentAssignee.avatar_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (currentAssignee?.full_name?.charAt(0) || task.assigned_to?.charAt(0) || '?').toUpperCase()
+                  )}
                 </div>
                 <span className="text-xs font-medium text-gray-400">
-                  {task.assigned_to || 'Unassigned'}
+                  {currentAssignee?.full_name || task.assigned_to || 'Unassigned'}
                 </span>
               </div>
             </div>

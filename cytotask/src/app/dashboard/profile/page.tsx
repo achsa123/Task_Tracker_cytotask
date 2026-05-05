@@ -1,16 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuthUser, useProfile, useUpdateProfile, useUploadAvatar } from '@/hooks';
+import { useAuthUser, useProfile, useUpdateProfile, useUploadAvatar, useDeleteAvatar } from '@/hooks';
 
 export default function ProfilePage() {
   const { data: user } = useAuthUser();
   const { data: profile, isLoading: isProfileLoading } = useProfile(user?.id);
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
+  const deleteAvatar = useDeleteAvatar();
 
   const [fullName, setFullName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
   useEffect(() => {
@@ -36,6 +38,11 @@ export default function ProfilePage() {
     }
   };
 
+  const getPathFromUrl = (url: string) => {
+    const parts = url.split('/avatars/');
+    return parts.length > 1 ? decodeURIComponent(parts[1]) : null;
+  };
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !user?.id) return;
 
@@ -44,6 +51,19 @@ export default function ProfilePage() {
     setMessage({ text: '', type: '' });
 
     try {
+      // 1. Delete old avatar if it exists
+      if (profile?.avatar_url) {
+        const oldPath = getPathFromUrl(profile.avatar_url);
+        if (oldPath) {
+          try {
+            await deleteAvatar.mutateAsync(oldPath);
+          } catch (err) {
+            console.error('Failed to delete old avatar:', err);
+          }
+        }
+      }
+
+      // 2. Upload new one
       const publicUrl = await uploadAvatar.mutateAsync({ userId: user.id, file });
       await updateProfile.mutateAsync({
         userId: user.id,
@@ -55,6 +75,31 @@ export default function ProfilePage() {
       setMessage({ text: error.message || 'Failed to upload avatar.', type: 'error' });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!user?.id || !profile?.avatar_url) return;
+    
+    setIsDeleting(true);
+    setMessage({ text: '', type: '' });
+    
+    try {
+      const path = getPathFromUrl(profile.avatar_url);
+      if (path) {
+        await deleteAvatar.mutateAsync(path);
+      }
+      
+      await updateProfile.mutateAsync({
+        userId: user.id,
+        email: user.email!,
+        updates: { avatar_url: null },
+      });
+      setMessage({ text: 'Avatar removed successfully!', type: 'success' });
+    } catch (error: any) {
+      setMessage({ text: error.message || 'Failed to remove avatar.', type: 'error' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -106,6 +151,16 @@ export default function ProfilePage() {
             <div>
               <h3 className="text-lg font-medium text-white">Profile Picture</h3>
               <p className="text-sm text-gray-400">JPG, GIF or PNG. Max size of 2MB.</p>
+              {profile?.avatar_url && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  disabled={isDeleting}
+                  className="mt-3 text-xs font-semibold text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? 'Removing...' : 'Remove Photo'}
+                </button>
+              )}
             </div>
           </div>
 

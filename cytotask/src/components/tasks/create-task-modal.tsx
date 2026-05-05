@@ -8,7 +8,7 @@ import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { createTaskSchema, type CreateTaskInput } from '@/schemas';
-import { useCreateTask } from '@/hooks';
+import { useCreateTask, useUsers } from '@/hooks';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -19,6 +19,7 @@ type FormValues = z.input<typeof createTaskSchema>;
 
 export function CreateTaskModal({ isOpen, onClose }: CreateTaskModalProps) {
   const { mutate: createTask, isPending, error } = useCreateTask();
+  const { data: users } = useUsers();
   const [successMsg, setSuccessMsg] = useState('');
 
   const {
@@ -100,12 +101,18 @@ export function CreateTaskModal({ isOpen, onClose }: CreateTaskModalProps) {
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-300">Assignee</label>
-          <select className="input appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:24px_24px] bg-[right_8px_center] bg-no-repeat pr-10" {...register('assigned_to')}>
+          <select 
+            className={`input appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:24px_24px] bg-[right_8px_center] bg-no-repeat pr-10 ${errors.assigned_to ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`} 
+            {...register('assigned_to')}
+          >
             <option value="">Unassigned</option>
-            <option value="alice@example.com">Alice (alice@example.com)</option>
-            <option value="bob@example.com">Bob (bob@example.com)</option>
-            <option value="charlie@example.com">Charlie (charlie@example.com)</option>
+            {users?.map((u) => (
+              <option key={u.id} value={u.email}>
+                {u.full_name || u.email}
+              </option>
+            ))}
           </select>
+          {errors.assigned_to && <span className="field-error">{errors.assigned_to.message}</span>}
         </div>
 
         {error && (

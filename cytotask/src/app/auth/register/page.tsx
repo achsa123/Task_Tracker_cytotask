@@ -2,19 +2,11 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRegister } from '@/hooks';
-
-// Only requesting email and password per instructions
-const authRegisterSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type AuthRegisterInput = z.infer<typeof authRegisterSchema>;
+import { registerSchema, type RegisterInput } from '@/schemas';
 
 export default function RegisterPage() {
   const { mutate: registerUser, isPending, error } = useRegister();
@@ -23,11 +15,11 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AuthRegisterInput>({
-    resolver: zodResolver(authRegisterSchema),
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: AuthRegisterInput) => {
+  const onSubmit = (data: RegisterInput) => {
     registerUser(data);
   };
 
@@ -39,6 +31,14 @@ export default function RegisterPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input
+          label="Full Name"
+          type="text"
+          placeholder="John Doe"
+          {...register('full_name')}
+          error={errors.full_name?.message}
+        />
+
         <Input
           label="Email address"
           type="email"
@@ -53,6 +53,14 @@ export default function RegisterPage() {
           placeholder="••••••••"
           {...register('password')}
           error={errors.password?.message}
+        />
+
+        <Input
+          label="Confirm Password"
+          type="password"
+          placeholder="••••••••"
+          {...register('confirmPassword')}
+          error={errors.confirmPassword?.message}
         />
 
         {error && (

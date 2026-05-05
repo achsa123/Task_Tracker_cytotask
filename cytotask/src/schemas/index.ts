@@ -17,7 +17,7 @@ export const createTaskSchema = z.object({
   status: taskStatusSchema.default('todo'),
   priority: taskPrioritySchema.default('medium'),
   due_date: z.string().optional().nullable(),
-  assigned_to: z.string().optional().nullable(),
+  assigned_to: z.string().min(1, 'Please assign this task to someone'),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();

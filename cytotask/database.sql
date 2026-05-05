@@ -166,10 +166,26 @@ create policy "Avatar images are publicly accessible."
   on storage.objects for select
   using ( bucket_id = 'avatars' );
 
-create policy "Anyone can upload an avatar."
+create policy "Authenticated users can upload an avatar to their own folder."
   on storage.objects for insert
-  with check ( bucket_id = 'avatars' );
+  to authenticated
+  with check ( 
+    bucket_id = 'avatars' 
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
 
-create policy "Anyone can update an avatar."
+create policy "Users can update their own avatar."
   on storage.objects for update
-  with check ( bucket_id = 'avatars' );
+  to authenticated
+  using ( 
+    bucket_id = 'avatars' 
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "Users can delete their own avatar."
+  on storage.objects for delete
+  to authenticated
+  using ( 
+    bucket_id = 'avatars' 
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );

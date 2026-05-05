@@ -63,11 +63,13 @@ export function useUploadAvatar() {
       file: File;
     }) => {
       const fileExt = file.name.split('.').pop();
-      const filePath = `${userId}-${Math.random()}.${fileExt}`;
+      const filePath = `${userId}/${Math.random()}.${fileExt}`;
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: true,
+        });
 
       if (uploadError) {
         throw uploadError;
@@ -78,6 +80,20 @@ export function useUploadAvatar() {
         .getPublicUrl(filePath);
 
       return urlData.publicUrl;
+    },
+  });
+}
+
+export function useDeleteAvatar() {
+  const supabase = createClient();
+
+  return useMutation({
+    mutationFn: async (filePath: string) => {
+      const { error } = await supabase.storage
+        .from('avatars')
+        .remove([filePath]);
+
+      if (error) throw error;
     },
   });
 }
